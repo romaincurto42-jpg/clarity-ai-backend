@@ -8,8 +8,10 @@ app.use(cors());
 app.use(express.json());
 
 // Initialiser Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.0-pro' });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const model = genAI.getGenerativeModel({ 
+  model: 'gemini-1.5-flash-latest'
+});
 
 // Route test
 app.get('/', (req, res) => {
@@ -17,7 +19,8 @@ app.get('/', (req, res) => {
     message: '✅ AI Compliance API is running!',
     status: 'OK',
     features: ['AI Act Analysis', 'GDPR Compliance Check'],
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -30,7 +33,7 @@ app.post('/api/analyze', async (req, res) => {
       return res.status(400).json({ error: 'Text is required' });
     }
 
-       // Analyse simulée - CORRIGÉE
+    // Analyse simulée - ressemble à une vraie analyse AI Act
     const simulatedAnalysis = `
 ANALYSE AI ACT & RGPD - RAPPORT
 ${'='.repeat(50)}
@@ -81,6 +84,7 @@ RESSOURCES :
 - AI Act UE : https://digital-strategy.ec.europa.eu
 - CNIL France : https://www.cnil.fr
 `;
+
     res.json({
       success: true,
       analysis: simulatedAnalysis,
@@ -108,14 +112,17 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     gemini: process.env.GEMINI_API_KEY ? 'configured' : 'not configured',
-    timestamp: new Date().toISOString()
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
   });
 });
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log('='.repeat(50));
-  console.log(`🚀 AI Compliance API running on http://localhost:${PORT}`);
+  console.log(`🚀 AI Compliance API running on port ${PORT}`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🤖 Gemini AI: ${process.env.GEMINI_API_KEY ? '✅ Ready' : '❌ No API Key'}`);
   console.log('='.repeat(50));
   console.log('Endpoints:');
