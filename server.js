@@ -4,7 +4,20 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+
+// CORS config pour autoriser GitHub Pages et localhost
+app.use(cors({
+  origin: [
+    'https://romaincurto42-jpg.github.io',
+    'http://localhost:3000',
+    'https://clarity-ai-4zhg.onrender.com',
+    'https://*.github.io'
+  ],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Initialiser Gemini
@@ -20,7 +33,8 @@ app.get('/', (req, res) => {
     status: 'OK',
     features: ['AI Act Analysis', 'GDPR Compliance Check'],
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    cors: 'enabled for github.io'
   });
 });
 
@@ -88,7 +102,7 @@ RESSOURCES :
     res.json({
       success: true,
       analysis: simulatedAnalysis,
-      simulated: true,  // On indique que c'est simulé
+      simulated: true,
       analyzedAt: new Date().toISOString(),
       company: companyName || 'Non spécifié',
       model: "Simulation Mode v1.0",
@@ -97,7 +111,6 @@ RESSOURCES :
 
   } catch (error) {
     console.error('Erreur:', error);
-    // Même en cas d'erreur, on retourne une simulation
     res.json({
       success: true,
       analysis: "ANALYSE SIMULÉE POUR DÉMO\n\nCette fonctionnalité utilise l'IA pour analyser la conformité AI Act.\n\nMode simulation activé.\n\nRecommandations standard :\n1. Audit de conformité\n2. Documentation des algorithmes\n3. Évaluation d'impact RGPD",
@@ -113,16 +126,21 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     gemini: process.env.GEMINI_API_KEY ? 'configured' : 'not configured',
     environment: process.env.NODE_ENV || 'development',
+    cors: 'enabled',
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
 });
+
+// Gestion OPTIONS pour CORS preflight
+app.options('*', cors());
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log('='.repeat(50));
   console.log(`🚀 AI Compliance API running on port ${PORT}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌍 CORS enabled for: github.io, localhost:3000`);
   console.log(`🤖 Gemini AI: ${process.env.GEMINI_API_KEY ? '✅ Ready' : '❌ No API Key'}`);
   console.log('='.repeat(50));
   console.log('Endpoints:');
