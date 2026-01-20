@@ -75,7 +75,7 @@ app.post('/api/analyze', async (req, res) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: "llama3-70b-8192",
+            model: "llama-3.3-70b-versatile",
             messages: [
               {
                 role: "system",
@@ -100,7 +100,7 @@ if (response.ok) {
   return res.json({
     success: true,
     analysis: data.choices[0].message.content,
-    ai_model: 'groq-llama3-70b',
+    ai_model: "llama-3.3-70b-versatile",
     analyzedAt: new Date().toISOString(),
     company: companyName || 'Non spécifié',
     tokens: data.usage.total_tokens
@@ -210,4 +210,3 @@ try {
   console.error('❌ Failed to start server:', error);
   process.exit(1);
 }
-
